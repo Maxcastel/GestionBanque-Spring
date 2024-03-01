@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorator="template1">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des comptes bancaires</title>
+    <link rel="stylesheet" type="text/css"
+            href="../static/css/style.css"
+            th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+        .mt60 {
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <!-- <div layout:include="template1 :: header"></div> -->
+
+    <header th:replace="template1 :: header"></header>
+
+    <!-- <div th:replace="template1"></div> -->
+    <!-- <header th:replace="template1 :: header"></header> -->
+
+    <!-- <header th:replace="template1 :: header"></header> -->
+
+    <!-- <div layout:fragment="content">
+        <h1>Liste des comptes</h1>
+    </div> -->
+
+        <!-- <h1>Liste des comptes</h1> -->
+
+    <!-- <div th:replace="template1 :: content">
+        <h1>Liste des comptes</h1>
+    </div> -->
+    <!-- <div class="mt-5"></div> -->
+
+     <!-- <section class="content" layout:fragment="content">
+        <h1 class="title">Liste des comptes bancaires</h1>
+        <p>Contenu spécifique à la page "comptes"...</p>
+    </section> -->
+
+     <!-- <div class="mt60" layout:fragment="content">
+        <h1 class="title">Liste des comptes bancaires</h1>
+        <p>Contenu spécifique à la page "comptes"...</p>
+    </div> -->
+
+    <div class="mt60" layout:fragment="content">
+
+        <div class="col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Consultation d'un compte</div>
+                <div class="panel-body">
+                    <form th:action="@{/consulterCompte}" method="get">
+                        <div>
+                            <label>Code du compte : </label>
+                            <input type="text" name="codeCompte">
+                            <button type="submit" class="btn btn-primary">Ok</button>
+                        </div>
+                    </form>
+                    <span class="text-danger" th:if="${exception}"
+                            th:text="${exception}">
+                    </span>
+                    <!-- th:text="${compte}" => Compte.toString() -->
+                    <!-- th:text="${compte.codeCompte}" => Compte.getCodeCompte() -->
+
+                    <!-- <p th:if="${compte}" th:text="${compte.client.nom}"></p> -->
+                    <!-- <p th:if="${compte}" th:text="${compte.codeCompte}"></p> -->
+                    <!-- <p th:if="${codeCompte}" th:text="${codeCompte}"></p>
+                    <p th:unless="${codeCompte}">pas de code</p> -->
+                    <!-- <p th:text="${codeCompte} ? ${codeCompte} : 'pas de code'"></p> -->
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="panel panel-primary" th:if="${compte}">
+                <div class="panel-heading">Information sur le compte</div>
+                <div class="panel-body">
+                    <div>
+                        <label>Client : </label>
+                        <label th:text="${compte.client.nom}"></label>
+                    </div>
+                    <div>
+                        <label>Code du compte :</label>
+                        <label th:text="${compte.codeCompte}"></label>
+                    </div>    
+                    <div>
+                        <label>Solde :</label>
+                        <label th:text="${compte.solde}"></label>
+                    </div>
+                    <div>
+                        <label>Date de création :</label>
+                        <label th:text="${compte.dateCreation}"></label>
+                    </div>
+                    <div>
+                        <label>Type de compte :</label>
+                        <label th:text="${compte.class.simpleName}"></label>
+                    </div>
+                    <div th:if="${compte.class.simpleName == 'CompteCourant'}">
+                        <label>Découvert :</label>
+                        <label th:text="${compte.decouvert}"></label>
+                    </div>
+                    <div th:if="${compte.class.simpleName == 'CompteEpargne'}">
+                        <label>Taux :</label>
+                        <label th:text="${compte.taux}"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="panel panel-primary" th:if="${compte}">
+                <div class="panel-heading">Operation sur le compte</div>
+                <div class="panel-body">
+                    <form th:action="@{/enregistrerOperation}" method="post">
+                        <div>
+                            <label>Code du compte : </label>
+                            <input type="hidden" name="codeCompte" th:value="${codeCompte}">
+                            <label th:text="${codeCompte}"></label>
+                        </div>
+                        <div>
+                            <input type="radio" name="typeOperation" value="VERS"
+                                    checked="checked" onchange="document.getElementById('forVirement')
+                                                                        .style.display='none'"
+                            >
+                            <label>Versement</label>
+
+                            <input type="radio" name="typeOperation" value="RET" 
+                                    onchange="document.getElementById('forVirement')
+                                                       .style.display='none'"
+                            >
+                            <label>Retrait</label>
+
+                            <input type="radio" name="typeOperation" value="VIR"
+                                    onchange="document.getElementById('forVirement')
+                                                     .style.display='block'"
+                            >
+                            <label>Virement</label>
+                        </div>
+                        <div id="forVirement" style="display: none">
+                            <label>Vers le compte : </label>
+                            <input type="text" name="codeCompte2">
+                        </div>
+                        <div>
+                            <label>Montant : </label>
+                            <input type="text" name="montant">
+                        </div>
+                        <div th:if="${param.error}" class="alert alert-danger">
+                            <p th:text="${param.error}"></p>
+                        </div>
+                        <!-- <span class="text-danger"
+                            th:if="${#httpServletRequest.getParameter('error') != null}"
+                            th:text="${#httpServletRequest.getParameter('error')}">
+                        </span> -->
+                        <!-- <span class="text-danger"
+                                th:text="${#httpServLetRequest.getParameter('error')}">
+                        </span> -->
+                        <button type="submit" class="btn btn-primary">Ok</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="panel panel-primary" th:if="${compte}">
+                <div class="panel-heading">Liste des operations</div>
+                <div class="panel-body">
+                    <!-- Operation.toString() -->
+                    <!-- <p th:text="${listeOperations}"></p> -->
+
+                    <table class="table table-striped">
+                        <tr><th>Num</th><th>Type</th><th>Date</th><th>Montant</th></tr>
+                        <tr th:each="o:${listeOperations}">
+                            <!-- Operation.getNumero() -->
+                            <td th:text="${o.numero}"></td>
+                            <td th:text="${o.class.simpleName}"></td>
+                            <td th:text="${o.dateOperation}"></td>
+                            <td th:text="${o.montant}"></td>
+                        </tr>
+                    </table>
+
+                    <div class="container">
+                        <ul class="nav nav-pills">
+                            <li th:each="p,status:${pages}">
+                                <a th:href="@{/consulterCompte(codeCompte=${codeCompte}, page=${status.index})}" 
+                                    th:text="${status.index+1}">
+                                </a>
+                            </li>
+
+                            <!-- <li class="nav-item">
+                                <a class="nav-link active" href="#">Active</a>
+                            </li> -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- <h2>Panels with Contextual Classes</h2>
+        <div class="panel-group">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Panel with panel-default class</div>
+                <div class="panel-body">Panel Content</div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">Panel with panel-primary class</div>
+                <div class="panel-body">Panel Content</div>
+            </div>
+
+            <div class="panel panel-success">
+                <div class="panel-heading">Panel with panel-success class</div>
+                <div class="panel-body">Panel Content</div>
+            </div>
+
+            <div class="panel panel-info">
+                <div class="panel-heading">Panel with panel-info class</div>
+                <div class="panel-body">Panel Content</div>
+            </div>
+
+            <div class="panel panel-warning">
+                <div class="panel-heading">Panel with panel-warning class</div>
+                <div class="panel-body">Panel Content</div>
+            </div>
+
+            <div class="panel panel-danger">
+                <div class="panel-heading">Panel with panel-danger class</div>
+                <div class="panel-body">Panel Content</div>
+            </div>
+
+        </div> -->
+
+    </div>
+
+
+
+   <!-- <div layout:include="template1 :: footer"></div> -->
+</body>
+</html>
